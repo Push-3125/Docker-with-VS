@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Advanced To-Do List</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --primary: #667eea;
+        --primary-dark: #5568d3;
+        --secondary: #764ba2;
+        --danger: #ff6b6b;
+        --success: #51cf66;
+        --warning: #ffd43b;
+        --bg-light: #ffffff;
+        --bg-dark: #1a1a2e;
+        --text-light: #333;
+        --text-dark: #e0e0e0;
+        --border-light: #e0e0e0;
+        --border-dark: #333;
+        --card-light: #f8f9fa;
+        --card-dark: #16213e;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(
+          135deg,
+          var(--primary) 0%,
+          var(--secondary) 100%
+        );
+        min-height: 100vh;
+        padding: 20px;
+        transition: all 0.3s ease;
+      }
+
+      body.dark-mode {
+        background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: var(--bg-light);
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        transition: all 0.3s ease;
+      }
+
+      body.dark-mode .container {
+        background: var(--bg-dark);
+      }
+
+      .header {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        padding: 30px;
+        color: white;
+        position: relative;
+      }
+
+      .header h1 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+        text-align: center;
+      }
+
+      .theme-toggle {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        padding: 10px 15px;
+        border-radius: 50px;
+        cursor: pointer;
+        font-size: 1.2em;
+        transition: all 0.3s;
+      }
+
+      .theme-toggle:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.1);
+      }
+
+      .auth-section {
+        padding: 20px 30px;
+        border-bottom: 2px solid var(--border-light);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      body.dark-mode .auth-section {
+        border-color: var(--border-dark);
+        color: var(--text-dark);
+      }
+
+      .auth-form {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .auth-form input {
+        padding: 10px 15px;
+        border: 2px solid var(--border-light);
+        border-radius: 8px;
+        font-size: 14px;
+      }
+
+      body.dark-mode .auth-form input {
+        background: var(--card-dark);
+        border-color: var(--border-dark);
+        color: var(--text-dark);
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+      }
+
+      .content {
+        padding: 30px;
+      }
+
+      body.dark-mode .content {
+        color: var(--text-dark);
+      }
+
+      .controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 25px;
+      }
+
+      .search-box,
+      .filter-box {
+        display: flex;
+        gap: 10px;
+      }
+
+      input,
+      select,
+      button {
+        padding: 12px 15px;
+        border: 2px solid var(--border-light);
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s;
+      }
+
+      body.dark-mode input,
+      body.dark-mode select {
+        background: var(--card-dark);
+        border-color: var(--border-dark);
+        color: var(--text-dark);
+      }
+
+      input:focus,
+      select:focus {
+        outline: none;
+        border-color: var(--primary);
+      }
+
+      .btn {
+        background: var(--primary);
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s;
+      }
+
+      .btn:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      .btn-danger {
+        background: var(--danger);
+      }
+
+      .btn-danger:hover {
+        background: #ee5a52;
+      }
+
+      .btn-success {
+        background: var(--success);
+      }
+
+      .btn-success:hover {
+        background: #40c057;
+      }
+
+      .add-form {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 100px;
+        gap: 10px;
+        margin-bottom: 25px;
+        padding: 20px;
+        background: var(--card-light);
+        border-radius: 12px;
+      }
+
+      body.dark-mode .add-form {
+        background: var(--card-dark);
+      }
+
+      .category-tags {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+
+      .tag {
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 12px;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: all 0.3s;
+      }
+
+      .tag.work {
+        background: #4dabf7;
+        color: white;
+      }
+      .tag.personal {
+        background: #51cf66;
+        color: white;
+      }
+      .tag.urgent {
+        background: #ff6b6b;
+        color: white;
+      }
+      .tag.shopping {
+        background: #ffd43b;
+        color: #333;
+      }
+
+      .tag.active {
+        border-color: #333;
+        transform: scale(1.1);
+      }
+
+      body.dark-mode .tag.active {
+        border-color: white;
+      }
+
+      .todo-list {
+        list-style: none;
+      }
+
+      .todo-item {
+        background: var(--card-light);
+        padding: 20px;
+        margin-bottom: 15px;
+        border-radius: 12px;
+        display: grid;
+        grid-template-columns: 30px 1fr auto;
+        gap: 15px;
+        align-items: start;
+        transition: all 0.3s;
+        cursor: move;
+        animation: slideIn 0.3s ease;
+      }
+
+      body.dark-mode .todo-item {
+        background: var(--card-dark);
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .todo-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .todo-item.completed {
+        opacity: 0.6;
+      }
+
+      .todo-item.completed .todo-text {
+        text-decoration: line-through;
+        color: #888;
+      }
+
+      .todo-item.dragging {
+        opacity: 0.5;
+        cursor: grabbing;
+      }
+
+      .todo-content {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .todo-text {
+        font-size: 16px;
+        color: var(--text-light);
+        word-break: break-word;
+      }
+
+      body.dark-mode .todo-text {
+        color: var(--text-dark);
+      }
+
+      .todo-meta {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .todo-category {
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 500;
+      }
+
+      .todo-deadline {
+        font-size: 12px;
+        color: #666;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      body.dark-mode .todo-deadline {
+        color: #999;
+      }
+
+      .todo-deadline.overdue {
+        color: var(--danger);
+        font-weight: bold;
+      }
+
+      .todo-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .icon-btn {
+        background: none;
+        border: none;
+        padding: 8px;
+        cursor: pointer;
+        font-size: 18px;
+        border-radius: 5px;
+        transition: all 0.3s;
+      }
+
+      .icon-btn:hover {
+        background: rgba(0, 0, 0, 0.1);
+      }
+
+      body.dark-mode .icon-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .edit-form {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-top: 30px;
+        padding-top: 30px;
+        border-top: 2px solid var(--border-light);
+      }
+
+      body.dark-mode .stats {
+        border-color: var(--border-dark);
+      }
+
+      .stat-card {
+        text-align: center;
+        padding: 20px;
+        background: var(--card-light);
+        border-radius: 12px;
+      }
+
+      body.dark-mode .stat-card {
+        background: var(--card-dark);
+      }
+
+      .stat-value {
+        font-size: 2em;
+        font-weight: bold;
+        color: var(--primary);
+      }
+
+      .stat-label {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+      }
+
+      body.dark-mode .stat-label {
+        color: #999;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+
+      .modal.active {
+        display: flex;
+      }
+
+      .modal-content {
+        background: var(--bg-light);
+        padding: 30px;
+        border-radius: 15px;
+        max-width: 500px;
+        width: 90%;
+        animation: modalSlide 0.3s ease;
+      }
+
+      body.dark-mode .modal-content {
+        background: var(--bg-dark);
+        color: var(--text-dark);
+      }
+
+      @keyframes modalSlide {
+        from {
+          opacity: 0;
+          transform: translateY(-50px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #999;
+      }
+
+      .empty-state-icon {
+        font-size: 4em;
+        margin-bottom: 20px;
+      }
+
+      @media (max-width: 768px) {
+        .controls {
+          grid-template-columns: 1fr;
+        }
+
+        .add-form {
+          grid-template-columns: 1fr;
+        }
+
+        .header h1 {
+          font-size: 1.8em;
+        }
+
+        .todo-item {
+          grid-template-columns: 30px 1fr;
+        }
+
+        .todo-actions {
+          grid-column: 1 / -1;
+          justify-content: flex-end;
+        }
+      }
+
+      .loading {
+        text-align: center;
+        padding: 40px;
+        color: #999;
+      }
+
+      .spinner {
+        border: 3px solid rgba(0, 0, 0, 0.1);
+        border-top: 3px solid var(--primary);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>📝 Advanced To-Do List</h1>
+        <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+      </div>
+
+      <div class="auth-section" id="authSection">
+        <div class="auth-form" id="loginForm">
+          <input type="text" id="username" placeholder="Username" />
+          <input type="password" id="password" placeholder="Password" />
+          <button class="btn" onclick="login()">Login</button>
+          <button class="btn btn-success" onclick="register()">Register</button>
+        </div>
+        <div class="user-info" id="userInfo" style="display: none">
+          <div class="user-avatar" id="userAvatar"></div>
+          <span id="userName"></span>
+          <button class="btn btn-danger" onclick="logout()">Logout</button>
+        </div>
+      </div>
+
+      <div class="content" id="mainContent" style="display: none">
+        <div class="controls">
+          <div class="search-box">
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="🔍 Tìm kiếm..."
+              oninput="filterTodos()"
+            />
+          </div>
+          <div class="filter-box">
+            <select id="statusFilter" onchange="filterTodos()">
+              <option value="all">Tất cả</option>
+              <option value="active">Chưa hoàn thành</option>
+              <option value="completed">Đã hoàn thành</option>
+            </select>
+            <select id="categoryFilter" onchange="filterTodos()">
+              <option value="all">Tất cả danh mục</option>
+              <option value="work">Công việc</option>
+              <option value="personal">Cá nhân</option>
+              <option value="urgent">Khẩn cấp</option>
+              <option value="shopping">Mua sắm</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="add-form">
+          <input
+            type="text"
+            id="todoInput"
+            placeholder="Thêm công việc mới..."
+          />
+          <select id="categoryInput">
+            <option value="work">Công việc</option>
+            <option value="personal">Cá nhân</option>
+            <option value="urgent">Khẩn cấp</option>
+            <option value="shopping">Mua sắm</option>
+          </select>
+          <input type="date" id="deadlineInput" />
+          <button class="btn" onclick="addTodo()">Thêm</button>
+        </div>
+
+        <ul class="todo-list" id="todoList">
+          <div class="loading">
+            <div class="spinner"></div>
+            <p>Đang tải dữ liệu...</p>
+          </div>
+        </ul>
+
+        <div class="stats">
+          <div class="stat-card">
+            <div class="stat-value" id="totalTodos">0</div>
+            <div class="stat-label">Tổng công việc</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="completedTodos">0</div>
+            <div class="stat-label">Đã hoàn thành</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="activeTodos">0</div>
+            <div class="stat-label">Chưa hoàn thành</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="overdueTodos">0</div>
+            <div class="stat-label">Quá hạn</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API_URL = "http://localhost:3000/api";
+      let todos = [];
+      let currentUser = null;
+      let authToken = localStorage.getItem("authToken");
+      let draggedElement = null;
+
+      // Theme
+      function toggleTheme() {
+        document.body.classList.toggle("dark-mode");
+        const isDark = document.body.classList.contains("dark-mode");
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+        document.querySelector(".theme-toggle").textContent = isDark
+          ? "☀️"
+          : "🌙";
+      }
+
+      // Load theme
+      if (localStorage.getItem("theme") === "dark") {
+        document.body.classList.add("dark-mode");
+        document.querySelector(".theme-toggle").textContent = "☀️";
+      }
+
+      // Auth functions
+      async function register() {
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value;
+
+        if (!username || !password) {
+          alert("Vui lòng nhập đầy đủ thông tin!");
+          return;
+        }
+
+        try {
+          const res = await fetch(`${API_URL}/auth/register`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password }),
+          });
+
+          const data = await res.json();
+          if (res.ok) {
+            alert("Đăng ký thành công! Vui lòng đăng nhập.");
+          } else {
+            alert(data.error || "Đăng ký thất bại");
+          }
+        } catch (error) {
+          alert("Lỗi kết nối server");
+        }
+      }
+
+      async function login() {
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value;
+
+        try {
+          const res = await fetch(`${API_URL}/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password }),
+          });
+
+          const data = await res.json();
+          if (res.ok) {
+            authToken = data.token;
+            currentUser = data.user;
+            localStorage.setItem("authToken", authToken);
+            showMainContent();
+            loadTodos();
+          } else {
+            alert(data.error || "Đăng nhập thất bại");
+          }
+        } catch (error) {
+          alert("Lỗi kết nối server");
+        }
+      }
+
+      function logout() {
+        authToken = null;
+        currentUser = null;
+        localStorage.removeItem("authToken");
+        showLoginForm();
+      }
+
+      function showMainContent() {
+        document.getElementById("loginForm").style.display = "none";
+        document.getElementById("userInfo").style.display = "flex";
+        document.getElementById("mainContent").style.display = "block";
+        document.getElementById("userName").textContent = currentUser.username;
+        document.getElementById("userAvatar").textContent =
+          currentUser.username[0].toUpperCase();
+      }
+
+      function showLoginForm() {
+        document.getElementById("loginForm").style.display = "flex";
+        document.getElementById("userInfo").style.display = "none";
+        document.getElementById("mainContent").style.display = "none";
+      }
+
+      // Check auth on load
+      async function checkAuth() {
+        if (!authToken) {
+          showLoginForm();
+          return;
+        }
+
+        try {
+          const res = await fetch(`${API_URL}/auth/me`, {
+            headers: { Authorization: `Bearer ${authToken}` },
+          });
+
+          if (res.ok) {
+            currentUser = await res.json();
+            showMainContent();
+            loadTodos();
+          } else {
+            logout();
+          }
+        } catch (error) {
+          logout();
+        }
+      }
+
+      // Todo functions
+      async function loadTodos() {
+        try {
+          const res = await fetch(`${API_URL}/todos`, {
+            headers: { Authorization: `Bearer ${authToken}` },
+          });
+          todos = await res.json();
+          filterTodos();
+        } catch (error) {
+          console.error("Error loading todos:", error);
+        }
+      }
+
+      async function addTodo() {
+        const text = document.getElementById("todoInput").value.trim();
+        const category = document.getElementById("categoryInput").value;
+        const deadline = document.getElementById("deadlineInput").value;
+
+        if (!text) {
+          alert("Vui lòng nhập công việc!");
+          return;
+        }
+
+        try {
+          const res = await fetch(`${API_URL}/todos`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({
+              text,
+              category,
+              deadline: deadline || null,
+            }),
+          });
+
+          if (res.ok) {
+            document.getElementById("todoInput").value = "";
+            document.getElementById("deadlineInput").value = "";
+            loadTodos();
+          }
+        } catch (error) {
+          alert("Lỗi khi thêm công việc");
+        }
+      }
+
+      async function toggleTodo(id, completed) {
+        try {
+          await fetch(`${API_URL}/todos/${id}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({ completed: !completed }),
+          });
+          loadTodos();
+        } catch (error) {
+          alert("Lỗi khi cập nhật");
+        }
+      }
+
+      async function deleteTodo(id) {
+        if (!confirm("Bạn có chắc muốn xóa?")) return;
+
+        try {
+          await fetch(`${API_URL}/todos/${id}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${authToken}` },
+          });
+          loadTodos();
+        } catch (error) {
+          alert("Lỗi khi xóa");
+        }
+      }
+
+      function startEdit(id) {
+        const todo = todos.find((t) => t._id === id);
+        const item = document.querySelector(`[data-id="${id}"]`);
+        const content = item.querySelector(".todo-content");
+
+        content.innerHTML = `
+                <div class="edit-form">
+                    <input type="text" id="edit-text-${id}" value="${
+          todo.text
+        }">
+                    <select id="edit-category-${id}">
+                        <option value="work" ${
+                          todo.category === "work" ? "selected" : ""
+                        }>Công việc</option>
+                        <option value="personal" ${
+                          todo.category === "personal" ? "selected" : ""
+                        }>Cá nhân</option>
+                        <option value="urgent" ${
+                          todo.category === "urgent" ? "selected" : ""
+                        }>Khẩn cấp</option>
+                        <option value="shopping" ${
+                          todo.category === "shopping" ? "selected" : ""
+                        }>Mua sắm</option>
+                    </select>
+                    <input type="date" id="edit-deadline-${id}" value="${
+          todo.deadline ? todo.deadline.split("T")[0] : ""
+        }">
+                    <button class="btn btn-success" onclick="saveEdit('${id}')">Lưu</button>
+                    <button class="btn" onclick="loadTodos()">Hủy</button>
+                </div>
+            `;
+      }
+
+      async function saveEdit(id) {
+        const text = document.getElementById(`edit-text-${id}`).value.trim();
+        const category = document.getElementById(`edit-category-${id}`).value;
+        const deadline = document.getElementById(`edit-deadline-${id}`).value;
+
+        if (!text) {
+          alert("Vui lòng nhập nội dung!");
+          return;
+        }
+
+        try {
+          await fetch(`${API_URL}/todos/${id}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({
+              text,
+              category,
+              deadline: deadline || null,
+            }),
+          });
+          loadTodos();
+        } catch (error) {
+          alert("Lỗi khi cập nhật");
+        }
+      }
+
+      function filterTodos() {
+        const search = document
+          .getElementById("searchInput")
+          .value.toLowerCase();
+        const status = document.getElementById("statusFilter").value;
+        const category = document.getElementById("categoryFilter").value;
+
+        let filtered = todos.filter((todo) => {
+          const matchSearch = todo.text.toLowerCase().includes(search);
+          const matchStatus =
+            status === "all" ||
+            (status === "active" && !todo.completed) ||
+            (status === "completed" && todo.completed);
+          const matchCategory =
+            category === "all" || todo.category === category;
+
+          return matchSearch && matchStatus && matchCategory;
+        });
+
+        renderTodos(filtered);
+      }
+
+      function renderTodos(todosToRender = todos) {
+        const list = document.getElementById("todoList");
+
+        if (todosToRender.length === 0) {
+          list.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <p>Chưa có công việc nào!</p>
+                    </div>
+                `;
+          updateStats();
+          return;
+        }
+
+        list.innerHTML = todosToRender
+          .map((todo) => {
+            const isOverdue =
+              todo.deadline &&
+              new Date(todo.deadline) < new Date() &&
+              !todo.completed;
+            const categoryColors = {
+              work: "#4dabf7",
+              personal: "#51cf66",
+              urgent: "#ff6b6b",
+              shopping: "#ffd43b",
+            };
+
+            return `
+                    <li class="todo-item ${todo.completed ? "completed" : ""}" 
+                        data-id="${todo._id}"
+                        draggable="true"
+                        ondragstart="handleDragStart(event)"
+                        ondragover="handleDragOver(event)"
+                        ondrop="handleDrop(event)"
+                        ondragend="handleDragEnd(event)">
+                        <input type="checkbox" 
+                               class="checkbox" 
+                               ${todo.completed ? "checked" : ""} 
+                               onchange="toggleTodo('${todo._id}', ${
+              todo.completed
+            })">
+                        <div class="todo-content">
+                            <div class="todo-text">${todo.text}</div>
+                            <div class="todo-meta">
+                                <span class="todo-category" style="background: ${
+                                  categoryColors[todo.category]
+                                }; color: white;">
+                                    ${getCategoryName(todo.category)}
+                                </span>
+                                ${
+                                  todo.deadline
+                                    ? `
+                                    <span class="todo-deadline ${
+                                      isOverdue ? "overdue" : ""
+                                    }">
+                                        📅 ${formatDate(todo.deadline)}
+                                        ${isOverdue ? "⚠️" : ""}
+                                    </span>
+                                `
+                                    : ""
+                                }
+                            </div>
+                        </div>
+                        <div class="todo-actions">
+                            <button class="icon-btn" onclick="startEdit('${
+                              todo._id
+                            }')" title="Chỉnh sửa">✏️</button>
+                            <button class="icon-btn" onclick="deleteTodo('${
+                              todo._id
+                            }')" title="Xóa">🗑️</button>
+                        </div>
+                    </li>
+                `;
+          })
+          .join("");
+
+        updateStats();
+      }
+
+      function getCategoryName(category) {
+        const names = {
+          work: "Công việc",
+          personal: "Cá nhân",
+          urgent: "Khẩn cấp",
+          shopping: "Mua sắm",
+        };
+        return names[category] || category;
+      }
+
+      function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString("vi-VN");
+      }
+
+      function updateStats() {
+        document.getElementById("totalTodos").textContent = todos.length;
+        document.getElementById("completedTodos").textContent = todos.filter(
+          (t) => t.completed
+        ).length;
+        document.getElementById("activeTodos").textContent = todos.filter(
+          (t) => !t.completed
+        ).length;
+
+        const overdue = todos.filter(
+          (t) => t.deadline && new Date(t.deadline) < new Date() && !t.completed
+        ).length;
+        document.getElementById("overdueTodos").textContent = overdue;
+      }
+
+      // Drag and drop
+      function handleDragStart(e) {
+        draggedElement = e.target;
+        e.target.classList.add("dragging");
+        e.dataTransfer.effectAllowed = "move";
+      }
+
+      function handleDragOver(e) {
+        if (e.preventDefault) {
+          e.preventDefault();
+        }
+        e.dataTransfer.dropEffect = "move";
+        return false;
+      }
+
+      function handleDrop(e) {
+        if (e.stopPropagation) {
+          e.stopPropagation();
+        }
+
+        if (draggedElement !== e.currentTarget) {
+          const allItems = [...document.querySelectorAll(".todo-item")];
+          const draggedIndex = allItems.indexOf(draggedElement);
+          const targetIndex = allItems.indexOf(e.currentTarget);
+
+          if (draggedIndex < targetIndex) {
+            e.currentTarget.parentNode.insertBefore(
+              draggedElement,
+              e.currentTarget.nextSibling
+            );
+          } else {
+            e.currentTarget.parentNode.insertBefore(
+              draggedElement,
+              e.currentTarget
+            );
+          }
+
+          updateTodoOrder();
+        }
+
+        return false;
+      }
+
+      function handleDragEnd(e) {
+        e.target.classList.remove("dragging");
+      }
+
+      async function updateTodoOrder() {
+        const items = [...document.querySelectorAll(".todo-item")];
+        const newOrder = items.map((item, index) => ({
+          id: item.dataset.id,
+          order: index,
+        }));
+
+        try {
+          await fetch(`${API_URL}/todos/reorder`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({ order: newOrder }),
+          });
+        } catch (error) {
+          console.error("Error updating order:", error);
+        }
+      }
+
+      // Enter key support
+      document.getElementById("todoInput").addEventListener("keypress", (e) => {
+        if (e.key === "Enter") addTodo();
+      });
+
+      // Init
+      checkAuth();
+    </script>
+  </body>
+</html>
