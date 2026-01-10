@@ -1,0 +1,36 @@
+services:
+  # MongoDB Database
+  - type: pserv
+    name: mongodb
+    env: docker
+    dockerfilePath: ./Dockerfile.mongo
+    disk:
+      name: mongodb-data
+      mountPath: /data/db
+      sizeGB: 1
+
+  # Backend API
+  - type: web
+    name: todo-backend
+    env: docker
+    dockerfilePath: ./backend/Dockerfile
+    envVars:
+      - key: MONGO_URI
+        value: mongodb://mongodb:27017/todolist
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PORT
+        value: 3000
+    healthCheckPath: /health
+
+  # Frontend
+  - type: web
+    name: todo-frontend
+    env: docker
+    dockerfilePath: ./frontend/Dockerfile
+    envVars:
+      - key: API_URL
+        fromService:
+          type: web
+          name: todo-backend
+          envVarKey: RENDER_EXTERNAL_URL
